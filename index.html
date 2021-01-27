@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reactive Vue Simulation</title>
+  </head>
+  <body>
+    <h1>Reactive Vue Simulation</h1>
+    <div id="app">
+      <h2>Text Node</h2>
+      <h4><span>msg: </span><span>{{ msg }}</span></h4>
+      <h4><span>count: </span><span>{{ count }}</span></h4>
+      <h2>Element Node</h2>
+      <h3>v-text</h3>
+      <h4><span>msg: </span><span v-text="msg"></span></h4>
+      <h4><span>count: </span><span v-text="count"></span></h4>
+      <h3>v-model</h3>
+      <h4>
+        <p>msg</p>
+        <input type="text" v-model="msg" />
+        <p>count</p>
+        <input type="text" v-model="count" />
+      </h4>
+    </div>
+    <script type="module">
+      import Vue from './src/vue.js';
+
+      const vm = new Vue({
+        el: '#app',
+        data: {
+          msg: 'Hello Vue',
+          count: 100,
+        },
+      });
+    </script>
+  </body>
+</html>
