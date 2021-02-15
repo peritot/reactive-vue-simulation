@@ -1,3 +1,5 @@
+import Watcher from './watcher.js';
+
 export default class Compiler {
   constructor(vm) {
     this.vm = vm;
@@ -22,10 +24,36 @@ export default class Compiler {
   }
 
   compileText(node) {
-    const reg = /\{\{(.+?)\}\}/;
+    let reg = /\{\{(.+?)\}\}/;
     if (reg.test(node.textContent)) {
-      const key = RegExp.$1.trim();
-      node.textContent = node.textContent.replace(reg, this.vm[key]);
+      let textContent = node.textContent.replace(/^\{\{|\}\}$/g, '');
+      reg = new RegExp(
+        `${Object.keys(this.vm.$data)
+          .map((key) => `(${key})`)
+          .join('|')}`,
+        'g'
+      );
+      const res = textContent.match(reg);
+      if (res?.length > 0) {
+        const fun = new Function(...[res], `return ${textContent}`);
+        node.textContent = fun.apply(
+          null,
+          res.map((key) => {
+            return this.vm[key];
+          })
+        );
+
+        res.forEach((key) => {
+          new Watcher(this.vm, key, (newValue) => {
+            node.textContent = fun.apply(
+              null,
+              res.map((k) => {
+                return k === key ? newValue : this.vm[key];
+              })
+            );
+          });
+        });
+      }
     }
   }
 
@@ -45,10 +73,22 @@ export default class Compiler {
 
   textUpdater(node, key, value) {
     node.textContent = value;
+
+    new Watcher(this.vm, key, (newValue) => {
+      node.textContent = newValue;
+    });
   }
 
   modelUpdater(node, key, value) {
     node.value = value;
+
+    new Watcher(this.vm, key, (newValue) => {
+      node.value = newValue;
+    });
+
+    document.addEventListener('input', () => {
+      this.vm[key] = node.value;
+    });
   }
 
   isDirective(attrName) {

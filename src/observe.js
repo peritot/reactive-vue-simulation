@@ -1,3 +1,5 @@
+import Dep from './dep.js';
+
 export default class Observe {
   constructor(data) {
     this.walk(data);
@@ -16,10 +18,13 @@ export default class Observe {
   defineReactive(data, key, oldValue) {
     const self = this;
 
+    const dep = new Dep();
     Object.defineProperty(data, key, {
       enumerable: true,
       configurable: true,
       get() {
+        Dep.target && dep.addSub(Dep.target);
+
         return oldValue;
       },
       set(newValue) {
@@ -28,9 +33,11 @@ export default class Observe {
         }
 
         oldValue = newValue;
-
         self.walk(newValue);
+
+        dep.notify();
       },
     });
+    self.walk(oldValue);
   }
 }

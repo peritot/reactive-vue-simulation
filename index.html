@@ -9,8 +9,14 @@
     <h1>Reactive Vue Simulation</h1>
     <div id="app">
       <h2>Text Node</h2>
+      <h3>Reactive</h3>
       <h4><span>msg: </span><span>{{ msg }}</span></h4>
       <h4><span>count: </span><span>{{ count }}</span></h4>
+      <h4><span>ok: </span><span>{{ ok ? 'yes' : 'no' }}</span></h4>
+      <h4><span>msg reverse: </span><span>{{ msg.split('').reverse().join('') }}</span></h4>
+      <h4><span>count + 1: </span><span>{{ count + 1 }}</span></h4>
+      <h3>Not Reactive</h3>
+      <h4><span>person: </span><span>{{ person }}</span></h4>
       <h2>Element Node</h2>
       <h3>v-text</h3>
       <h4><span>msg: </span><span v-text="msg"></span></h4>
@@ -26,13 +32,23 @@
     <script type="module">
       import Vue from './src/vue.js';
 
-      const vm = new Vue({
+      window.vm = new Vue({
         el: '#app',
         data: {
           msg: 'Hello Vue',
           count: 100,
+          ok: true,
+          // person: 'person',
         },
       });
+
+      // Reactive
+      setInterval(() => {
+        vm.count++;
+      }, 1000);
+
+      // Not Reactive
+      vm.person = 'person 2';
     </script>
   </body>
 </html>
