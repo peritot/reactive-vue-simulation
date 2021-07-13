@@ -6,6 +6,7 @@ export default class Vue {
     this.$options = options || {};
     this.$el = typeof this.$options.el === 'string' ? document.querySelector(this.$options.el) : this.$options.el;
     this.$data = this.$options.data || {};
+    this.$methods = this.$options.methods || {};
 
     this._proxyData(this.$data);
 

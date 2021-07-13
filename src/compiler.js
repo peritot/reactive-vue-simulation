@@ -27,6 +27,7 @@ export default class Compiler {
     let reg = /\{\{(.+?)\}\}/;
     if (reg.test(node.textContent)) {
       let textContent = node.textContent.replace(/^\{\{|\}\}$/g, '');
+      // 获取变量参数
       reg = new RegExp(
         `${Object.keys(this.vm.$data)
           .map((key) => `(${key})`)
@@ -35,6 +36,7 @@ export default class Compiler {
       );
       const res = textContent.match(reg);
       if (res?.length > 0) {
+        // 构造函数
         const fun = new Function(...[res], `return ${textContent}`);
         node.textContent = fun.apply(
           null,
@@ -67,8 +69,17 @@ export default class Compiler {
   }
 
   updater(node, key, attrName) {
+    let value = this.vm[key];
+
+    // v-on 指令
+    const reg = /^on:/;
+    if (reg.test(attrName)) {
+      value = attrName.replace(reg, '');
+      attrName = 'on';
+    }
+
     const fn = this[`${attrName}Updater`];
-    fn?.call(this, node, key, this.vm[key]);
+    fn?.call(this, node, key, value);
   }
 
   textUpdater(node, key, value) {
@@ -76,6 +87,14 @@ export default class Compiler {
 
     new Watcher(this.vm, key, (newValue) => {
       node.textContent = newValue;
+    });
+  }
+
+  htmlUpdater(node, key, value) {
+    node.innerHTML = value;
+
+    new Watcher(this.vm, key, (newValue) => {
+      node.innerHTML = newValue;
     });
   }
 
@@ -88,6 +107,22 @@ export default class Compiler {
 
     document.addEventListener('input', () => {
       this.vm[key] = node.value;
+    });
+  }
+
+  onUpdater(node, key, value) {
+    let fn = this.vm.$methods[key];
+    let args = [];
+    // 是否包含括号和参数
+    let reg = /(.+?)\((.+?)\)/;
+    let res = key.match(reg);
+    if (res?.length > 0) {
+      fn = this.vm.$methods[res[1]];
+      args = res[2]?.replace(/\s*/g, '').split(',') || [];
+    }
+
+    node.addEventListener(value, (event) => {
+      fn?.apply(node, [...args, event]);
     });
   }
 

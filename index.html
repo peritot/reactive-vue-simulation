@@ -28,6 +28,20 @@
         <p>count</p>
         <input type="text" v-model="count" />
       </h4>
+      <h3>v-html</h3>
+      <h4>
+        <p>rawHtml</p>
+        <p>
+          <input type="text" v-model="rawHtml" />
+        </p>
+        <span v-html="rawHtml"></span>
+      </h4>
+      <h3>v-on</h3>
+      <h4>
+        <p>click</p>
+        <button v-on:click="greet">on click</button>
+        <button v-on:click="say('hi', 'click')">on click which arguments</button>
+      </h4>
     </div>
     <script type="module">
       import Vue from './src/vue.js';
@@ -39,6 +53,17 @@
           count: 100,
           ok: true,
           // person: 'person',
+          rawHtml: '<span style="color:green">raw html</span>',
+        },
+        methods: {
+          greet: (event) => {
+            if (event) {
+              alert(event.target.tagName);
+            }
+          },
+          say: (...args) => {
+            alert(JSON.stringify(args));
+          },
         },
       });
 
